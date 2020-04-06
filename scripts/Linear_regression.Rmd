@@ -250,20 +250,3 @@ mse_selected_value <- mean((y_test_selected - pred_selected)^2)
 mse_selected_value
 ```
 
-```{r}
-
-mse(pred_selected,y_test_selected)
-```
-
-get rid of columns highly corretlated
-year? 
-MSE
-Fit in modified dataset
-Compare MSE
-
-
-add years
-turning values
-y-normalization
-fit in lasso/rideg more
-try different measurement: mse/MAPA/RMSE...
