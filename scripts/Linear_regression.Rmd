@@ -5,10 +5,53 @@ date: "2/8/2020"
 output: html_document
 ---
 
-```{r}
+```{r library}
+library(tidyverse)
 library(glmnet)
 library(RColorBrewer)
+library(Metrics)
 mypalette <- brewer.pal(6,"Set1")
+```
+
+Read Dataset
+```{r read dataset}
+potatorar = read.csv("potatometadata_forClaudia.csv")
+
+exploratory = potatorar[which(potatorar$Experiment == 2015), ]
+confirmatory  = potatorar[which(potatorar$Experiment == 2017), ]
+```
+
+Rearranging the tables
+```{r}
+nu = data.frame("nutrients" = c("high", "low"))
+nu = data.frame("nutrients" = nu[rep(seq_len(nrow(nu)), each = 13), ])
+t1 =  potatorar[, -which(colnames(potatorar)=="Mean.LowN.Microbe")]
+t2 =  potatorar[, -which(colnames(potatorar)=="Mean.Control.Microbe")]
+
+t3 =  t1[, -which(colnames(t1)=="varNtub")]
+t4 =  t2[, -which(colnames(t2)=="varCtub")]
+
+t5 = t3[, -which(colnames(t3)=="Std.Err.Mean.LowN.Microbe")]  
+t6 =  t4[, -which(colnames(t4)=="Std.Err.Mean.Control.Microbe")]
+
+t7 = t5[, -which(colnames(t5)=="invVar_Ntub")]  
+t8 =  t6[, -which(colnames(t6)=="invVar_Ctub")]
+
+c1 =  cbind(t7,data.frame("nutrients" = nu[1:13,]))
+names(c1)[names(c1) == "Mean.Control.Microbe"] <- "yields_average"
+names(c1)[names(c1) == "varCtub"] <- "yields_variance"
+names(c1)[names(c1) == "Std.Err.Mean.Control.Microbe"] <- "yields_std.err.mean"
+names(c1)[names(c1) == "invVar_Ctub"] <- "yields_inverse.var"
+
+c2 = cbind(t8,data.frame("nutrients" = nu[14:26,]))
+names(c2)[names(c2) == "Mean.LowN.Microbe"] <- "yields_average"
+names(c2)[names(c2) == "varNtub"] <- "yields_variance"
+names(c2)[names(c2) == "Std.Err.Mean.LowN.Microbe"] <- "yields_std.err.mean"
+names(c2)[names(c2) == "invVar_Ntub"] <- "yields_inverse.var"
+
+potatorar_update = rbind(c1, c2)
+potatorar_update = potatorar_update %>% arrange(potatorar_update$FieldID)
+write.csv(potatorar_update, file = "potatorar_update.csv", quote = FALSE)
 ```
 
 Get data for two different experiments
@@ -207,8 +250,20 @@ mse_selected_value <- mean((y_test_selected - pred_selected)^2)
 mse_selected_value
 ```
 
+```{r}
+
+mse(pred_selected,y_test_selected)
+```
+
 get rid of columns highly corretlated
 year? 
 MSE
 Fit in modified dataset
 Compare MSE
+
+
+add years
+turning values
+y-normalization
+fit in lasso/rideg more
+try different measurement: mse/MAPA/RMSE...
